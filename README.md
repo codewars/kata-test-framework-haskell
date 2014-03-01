@@ -2,7 +2,7 @@
 
 codewars.com kata test framework for the Haskell language
 
-## Building
+## Building and Running Tests
 
 Make sure that you have `cabal` installed.
 
