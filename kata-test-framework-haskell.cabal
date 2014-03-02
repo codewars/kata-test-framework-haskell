@@ -57,19 +57,24 @@ library
   default-language:    Haskell2010  
   build-depends:       hspec >= 1.8
                      , base >= 4.6 && <4.7
-                     , QuickCheck
-                     , HUnit
+                     , QuickCheck >= 2.6
+                     , HUnit >= 1.2
+                     , silently >= 1.2
+                     , aeson >= 0.7
+                     , bytestring >= 0.10
   hs-source-dirs:      src  
   default-language:    Haskell2010
   ghc-options:         -Wall
 
-test-suite test
+Executable test
   main-is:             TestSuite.hs
   default-language:    Haskell2010
   build-depends:       hspec >= 1.8 
                      , base >= 4.6 && <4.7
-                     , QuickCheck
-                     , HUnit
+                     , QuickCheck >= 2.6
+                     , HUnit >= 1.2
+                     , silently >= 1.2
+                     , aeson >= 0.7
+                     , bytestring >= 0.10
   hs-source-dirs:      test src
   ghc-options:         -Wall
-  type:                exitcode-stdio-1.0

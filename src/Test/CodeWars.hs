@@ -1,6 +1,8 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 module Test.CodeWars (
-  hspec
+  -- HSpec
+  spec
+  , Spec
   , describe
   , it
 
@@ -29,10 +31,62 @@ module Test.CodeWars (
                      ) where
 
 import Test.Hspec
-import Test.QuickCheck
+import Test.Hspec.Runner (hspecWithFormatter)
+import Test.Hspec.Formatters (silent,
+                              Formatter (..),
+                              writeLine,
+                              getRealTime,
+                              getFailCount,
+                              formatException)
+import Test.QuickCheck hiding (reason)
 import Control.Exception (evaluate)
 import Test.HUnit (assertFailure)
 import Control.Monad (unless)
+import Text.Printf (printf)
+import Data.Aeson.Encode (encode)
+import Data.ByteString.Lazy.Char8 (unpack)
+
+codewarsFormatter :: Formatter
+codewarsFormatter =
+  silent {
+    headerFormatter = do
+       writeLine "{"
+       writeLine $ quote "output" ++ " : { "
+       
+ , exampleGroupStarted = \_ nesting name ->
+     writeLine $
+     indentationFor nesting ++ quote name ++ " : { "
+
+ , exampleSucceeded = \(nesting, requirement) ->
+     writeLine $
+     indentationFor nesting
+     ++ quote requirement ++ " : { \"success\": true },"
+
+ , exampleFailed = \(nesting, requirement) reason ->
+     writeLine $
+     indentationFor nesting
+     ++ quote requirement ++ " : { \"success\": false,"
+     ++ " \"reason\": " ++ err reason ++ " },"
+     
+ , exampleGroupDone = writeLine "   },"
+ 
+ , footerFormatter = do
+       writeLine "},"
+       n <- getFailCount
+       writeLine $ quote "success"
+         ++ ": " ++ if n == 0 then "true" else "false" ++ ","
+       time <- getRealTime
+       writeLine (printf "\"time\": %f" time)
+       writeLine "}"
+    }
+  where
+    quote = unpack . encode
+    err reason = quote $ either (("uncaught exception: " ++) . formatException) id reason
+    indentationFor nesting = replicate ((1 + length nesting) * 2) ' '
+
+
+spec :: Spec -> IO ()
+spec = hspecWithFormatter codewarsFormatter
 
 infix 1 `shouldNotBe`
 shouldNotBe :: (Eq a, Show a) => a -> a -> Expectation
