@@ -31,7 +31,7 @@ module Test.CodeWars (
                      ) where
 
 import Test.Hspec
-import Test.Hspec.Runner (hspecWithFormatter)
+import Test.Hspec.Runner (hspecWith, defaultConfig, Config (configFormatter,configHandle))
 import Test.Hspec.Formatters (silent,
                               Formatter (..),
                               writeLine,
@@ -44,7 +44,12 @@ import Test.HUnit (assertFailure)
 import Control.Monad (unless)
 import Text.Printf (printf)
 import Data.Aeson.Encode (encode)
-import Data.ByteString.Lazy.Char8 (unpack)
+import qualified Data.ByteString.Lazy.Char8 as ByteStringLazy (unpack)
+import qualified Data.ByteString.Char8 as ByteString (unpack)
+import System.Environment (withArgs)
+import Data.ByteString (pack)
+import qualified Data.Knob 
+import System.IO (hClose, IOMode( WriteMode ))
 
 codewarsFormatter :: Formatter
 codewarsFormatter =
@@ -80,13 +85,20 @@ codewarsFormatter =
        writeLine "}"
     }
   where
-    quote = unpack . encode
+    quote = ByteStringLazy.unpack . encode
     err reason = quote $ either (("uncaught exception: " ++) . formatException) id reason
     indentationFor nesting = replicate ((1 + length nesting) * 2) ' '
 
 
-spec :: Spec -> IO ()
-spec = hspecWithFormatter codewarsFormatter
+spec :: Spec -> IO String
+spec s = withArgs [] $ do
+  knob <- Data.Knob.newKnob (pack [])
+  h <- Data.Knob.newFileHandle knob "Test.CodeWars" WriteMode
+  _ <- hspecWith defaultConfig {configFormatter = codewarsFormatter, configHandle = Left h} s
+  hClose h
+  bytes <- Data.Knob.getContents knob
+  return $ ByteString.unpack bytes
+  
 
 infix 1 `shouldNotBe`
 shouldNotBe :: (Eq a, Show a) => a -> a -> Expectation
