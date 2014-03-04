@@ -1,7 +1,9 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 module Test.CodeWars (
-  -- HSpec
+  -- CodeWars Specification system 
   spec
+
+  -- HSpec
   , Spec
   , describe
   , it
@@ -30,29 +32,12 @@ module Test.CodeWars (
   , errorCall
                      ) where
 
-import Test.Hspec
-import Test.Hspec.Runner (hspecWith, defaultConfig, Config (configFormatter,configHandle))
+import Test.Hspec 
+import Test.CodeWars.Spec (spec)
 import Test.QuickCheck hiding (reason)
 import Control.Exception (evaluate)
 import Test.HUnit (assertFailure)
 import Control.Monad (unless)
-import Data.ByteString.Char8 (pack, unpack)
-import System.Environment (withArgs)
-import qualified Data.Knob 
-import System.IO (hClose, IOMode( WriteMode ))
-import Test.CodeWars.Formatter (json)
-import Data.String.Utils (replace)
-
-spec :: Spec -> IO String
-spec s = withArgs [] $ do
-  knob <- Data.Knob.newKnob (pack [])
-  h <- Data.Knob.newFileHandle knob "Test.CodeWars" WriteMode
-  _ <- hspecWith defaultConfig {configFormatter = json
-                               , configHandle = Left h} s
-  hClose h
-  bytes <- Data.Knob.getContents knob
-  let out = replace ",}" "}" $ unpack bytes
-  return out
 
 infix 1 `shouldNotBe`
 shouldNotBe :: (Eq a, Show a) => a -> a -> Expectation
