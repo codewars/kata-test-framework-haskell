@@ -51,7 +51,7 @@ jsonTest = do
         it "is a valid JSON" $
           "1" `shouldSatisfy` isCorrectlyFormattedJSON
     describe "Big Test Output" $ do
-      it "is a properly formatted JSON" $
+      it "is a valid JSON" $
         out `shouldSatisfy` isCorrectlyFormattedJSON
         where
 
