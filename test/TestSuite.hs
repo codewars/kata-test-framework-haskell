@@ -3,7 +3,6 @@ module Main where
 import Test.CodeWars
 import Hamming (hammings)
 import System.IO.Unsafe (unsafePerformIO)
-import Data.ByteString.Lazy.Char8 (pack)
 import Data.JSON2.Parser (parseJson)
 --import Data.JSON2 (pprint)
 
@@ -44,19 +43,21 @@ isCorrectlyFormattedJSON s =
 
 jsonTest :: IO Spec
 jsonTest = do
-  out <- spec $ bigTest
+
+  out <- spec $ describe "Test" $ it "should always be True" $ True `shouldBe` True
+
   return $ do
     describe "JSON Controls" $ do
       describe "1" $
         it "is a valid JSON" $
           "1" `shouldSatisfy` isCorrectlyFormattedJSON
-    describe "Big Test Output" $ do
+    
+    describe "Test Output" $ do
       it "is a valid JSON" $
         out `shouldSatisfy` isCorrectlyFormattedJSON
-        where
 
 main :: IO ()
 main = do
   jt <- jsonTest
-  out <- spec $ do { bigTest ; jt }
+  out <- spec $ do {bigTest ; jt}
   putStrLn out

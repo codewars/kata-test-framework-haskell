@@ -1,4 +1,4 @@
-module Test.CodeWars.Formatter (json) where
+module Test.CodeWars.Formatter (json,kvPair,quote) where
 import Test.Hspec.Formatters (silent,
                               Formatter (..),
                               FormatM,
@@ -51,7 +51,10 @@ showTime :: Double -> String
 showTime = printf "%f"
 
 writePair :: String -> String -> FormatM ()
-writePair k v = write $ quote k ++ " : " ++ v ++ ","
+writePair k v = write (kvPair k v)
+
+kvPair :: String -> String -> String
+kvPair k v = quote k ++ " : " ++ v ++ ","
 
 quote :: String -> String
 quote = unpack . encode
